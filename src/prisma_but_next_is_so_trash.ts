@@ -1,3 +1,4 @@
+import 'server-only'
 import path from 'node:path'
 import url from 'node:url'
 import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";

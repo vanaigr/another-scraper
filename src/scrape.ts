@@ -32,6 +32,7 @@ outer: while(true) {
 
     await page.waitForSelector(listSelector)
     console.log('Checking page', i)
+    i++
 
     const jobCount = await page.evaluate(({ listSelector, cardSelector }) => {
         return document.querySelectorAll(`${listSelector} > ${cardSelector}`).length
@@ -72,7 +73,7 @@ outer: while(true) {
             time: now,
             companyUrl: jobDetailsRaw.companyUrl,
             companyName: jobDetailsRaw.companyTitle,
-            jobTitle: jobDetailsRaw.companyTitle,
+            jobTitle: jobDetailsRaw.roleTitle,
             jobLocation: jobDetailsRaw.location,
             jobDescription: jobDetailsRaw.description,
             jobDescriptionHtml: jobDetailsRaw.descriptionHtml,

@@ -19,3 +19,8 @@ model job {
     jobDescription String
     jobDescriptionHtml String
 }
+
+model status {
+    id String @id
+    status String
+}

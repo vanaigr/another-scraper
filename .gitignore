@@ -3,3 +3,5 @@
 /data/
 /sqlite.db
 /log.txt
+/.next/
+/next-env.d.ts
