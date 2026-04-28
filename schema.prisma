@@ -1,0 +1,21 @@
+generator client {
+  provider = "prisma-client"
+  output   = "./generated/prisma"
+}
+datasource db {
+  provider = "sqlite"
+}
+
+model job {
+    id String @id
+    time Int
+
+    companyUrl String
+    companyName String
+
+    jobTitle String
+    jobLocation String
+
+    jobDescription String
+    jobDescriptionHtml String
+}
