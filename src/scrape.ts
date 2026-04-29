@@ -21,8 +21,18 @@ await page.type(inputSelector, 'full stack')
 await page.focus(inputSelector);
 await page.keyboard.press('Enter');
 */
-//await page.goto('https://www.linkedin.com/jobs/search-results/?keywords=full%20stack&f_TPR=r86400&f_SAL=f_SA_id_225001%3A272001')
-await page.goto('https://www.linkedin.com/jobs/search-results/?keywords=typescript&f_TPR=r86400&f_SAL=f_SA_id_225001%3A272001')
+
+{
+    const url = new URL('https://www.linkedin.com/jobs/search-results')
+    url.searchParams.set('keywords', 'typescript')
+    //url.searchParams.set('keywords', 'full stack')
+    url.searchParams.set('f_TPR', 'r86400') // past 24 hours
+    url.searchParams.set('f_SAL', 'f_SA_id_225001:272001') // remote
+    url.searchParams.set('f_AL', 'true') // easy apply
+
+    await page.goto(url.toString())
+}
+
 
 const now = Date.now()
 
@@ -42,50 +52,56 @@ outer: while(true) {
     for(let j = 0; j < jobCount; j++) {
         console.log('Checking job', j)
 
-        await page.evaluate(({ listSelector, cardSelector, j }) => {
-            const card = document.querySelectorAll(`${listSelector} > ${cardSelector}`)[j]
-            ;(card!.childNodes[0]!.childNodes[0]!.childNodes[0]! as any).click()
-        }, { listSelector, cardSelector, j })
+        try {
+            await page.evaluate(({ listSelector, cardSelector, j }) => {
+                const card = document.querySelectorAll(`${listSelector} > ${cardSelector}`)[j]
+                ;(card!.childNodes[0]!.childNodes[0]!.childNodes[0]! as any).click()
+            }, { listSelector, cardSelector, j })
 
-        await U.delay(1)
-        const jobDescCont = '[data-sdui-screen="com.linkedin.sdui.flagshipnav.jobs.SemanticJobDetails"]'
-        await page.waitForSelector(`${jobDescCont} [aria-label="More options"]`)
-        await page.waitForSelector(`${jobDescCont} [data-testid="expandable-text-box"]`)
+            await U.delay(1)
+            const jobDescCont = '[data-sdui-screen="com.linkedin.sdui.flagshipnav.jobs.SemanticJobDetails"]'
+            await page.waitForSelector(`${jobDescCont} [aria-label="More options"]`)
+            await page.waitForSelector(`${jobDescCont} [data-testid="expandable-text-box"]`)
 
-        const jobDetailsRaw = await page.evaluate(({ listSelector, cardSelector, j, jobDescCont }) => {
-            const linkEls = document.querySelectorAll(`${jobDescCont} a`)
-            const companyEl = linkEls[1]
-            const titleEl = linkEls[2]
-            const descEl = document.querySelector('[data-testid="expandable-text-box"]')
-            const locationEl = document.querySelectorAll(`${listSelector} > ${cardSelector}`)[j]!.querySelectorAll('p')[2]
+            const jobDetailsRaw = await page.evaluate(({ listSelector, cardSelector, j, jobDescCont }) => {
+                const linkEls = document.querySelectorAll(`${jobDescCont} a`)
+                const companyEl = linkEls[1]
+                const titleEl = linkEls[2]
+                const descEl = document.querySelector('[data-testid="expandable-text-box"]')
+                const locationEl = document.querySelectorAll(`${listSelector} > ${cardSelector}`)[j]!.querySelectorAll('p')[2]
 
-            return {
-                id: new URL('' + window.location).searchParams.get('currentJobId')!,
-                companyUrl: companyEl.getAttribute('href')!,
-                companyTitle: companyEl.textContent,
-                roleTitle: titleEl.textContent,
-                location: locationEl.textContent,
-                descriptionHtml: descEl!.innerHTML,
-                description: descEl!.textContent.replace(/\s+/, ' ').trim(),
+                return {
+                    id: new URL('' + window.location).searchParams.get('currentJobId')!,
+                    companyUrl: companyEl.getAttribute('href')!,
+                    companyTitle: companyEl.textContent,
+                    roleTitle: titleEl.textContent,
+                    location: locationEl.textContent,
+                    descriptionHtml: descEl!.innerHTML,
+                    description: descEl!.textContent.replace(/\s+/, ' ').trim(),
+                }
+            }, { listSelector, cardSelector, j, jobDescCont })
+            const jobDetails: P.job = {
+                id: jobDetailsRaw.id,
+                time: now,
+                companyUrl: jobDetailsRaw.companyUrl,
+                companyName: jobDetailsRaw.companyTitle,
+                jobTitle: jobDetailsRaw.roleTitle,
+                jobLocation: jobDetailsRaw.location,
+                jobDescription: jobDetailsRaw.description,
+                jobDescriptionHtml: jobDetailsRaw.descriptionHtml,
             }
-        }, { listSelector, cardSelector, j, jobDescCont })
-        const jobDetails: P.job = {
-            id: jobDetailsRaw.id,
-            time: now,
-            companyUrl: jobDetailsRaw.companyUrl,
-            companyName: jobDetailsRaw.companyTitle,
-            jobTitle: jobDetailsRaw.roleTitle,
-            jobLocation: jobDetailsRaw.location,
-            jobDescription: jobDetailsRaw.description,
-            jobDescriptionHtml: jobDetailsRaw.descriptionHtml,
-        }
 
-        console.log('saving job details')
-        await P.prisma.job.upsert({
-            where: { id: jobDetails.id },
-            create: jobDetails,
-            update: jobDetails,
-        })
+            console.log('saving job details')
+            await P.prisma.job.upsert({
+                where: { id: jobDetails.id },
+                create: jobDetails,
+                update: jobDetails,
+            })
+        }
+        catch(err) {
+            console.error('While checking job', err)
+            break outer
+        }
     }
 
     try {
