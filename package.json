@@ -1,5 +1,8 @@
 {
     "type": "module",
+    "scripts": {
+        "dev": "next dev"
+    },
     "dependencies": {
         "@prisma/adapter-better-sqlite3": "^7.8.0",
         "@prisma/client": "^7.8.0",

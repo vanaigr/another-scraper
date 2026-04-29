@@ -21,7 +21,8 @@ await page.type(inputSelector, 'full stack')
 await page.focus(inputSelector);
 await page.keyboard.press('Enter');
 */
-await page.goto('https://www.linkedin.com/jobs/search-results/?keywords=full%20stack&f_TPR=r86400&f_SAL=f_SA_id_225001%3A272001')
+//await page.goto('https://www.linkedin.com/jobs/search-results/?keywords=full%20stack&f_TPR=r86400&f_SAL=f_SA_id_225001%3A272001')
+await page.goto('https://www.linkedin.com/jobs/search-results/?keywords=typescript&f_TPR=r86400&f_SAL=f_SA_id_225001%3A272001')
 
 const now = Date.now()
 

@@ -53,7 +53,7 @@ export function App({ jobs: jobs0 }: { jobs: Job[] }) {
                 url.searchParams.set('currentJobId', selected.id)
 
                 let html = selected.jobDescriptionHtml
-                html = html.replaceAll(/(clearance|us citizen)/ig, (it) => {
+                html = html.replaceAll(/(clearance|us citizen|u\.s\. citizen)/ig, (it) => {
                     return `<span class="bg-yellow-400">${it}</span>`
                 })
 

@@ -10,7 +10,11 @@ const bannedCompanies = [
     'Quik Hire Staffing',
     'Jack & Jill',
     'Stealth Startup',
+    'Recruiting from Scratch',
+    'RemoteHunter',
+    'Haystack',
     'Underdog.io -Apply to top tech jobs in 60 seconds. A place where companies apply to you',
+    'Applicantz',
 ]
 
 const getYears = /(\d+)(\s*[-–—]\s*\d+)?\+? (years|experience)/g
@@ -30,6 +34,7 @@ export default async function() {
     let loc = 0
     let com = 0
     let title = 0
+    let experience = 0
 
     const jobs: Job[] = []
     for(const dbJob of dbJobs) {
@@ -57,22 +62,25 @@ export default async function() {
             match = false
             com++
         }
-        if(/\b(lead|staff|principal|java|python|director)\b/.test(jobTitle)) {
+        if(/\b(lead|staff|principal|java|python|director|manager)\b/.test(jobTitle)) {
             match = false
             title++
         }
-        //if(years >= 5) continue
+        if(years >= 5) {
+            match = false
+            experience++
+        }
 
         if(!match) continue
 
         jobs.push({
             ...dbJob,
             years,
-            clearance: desc.includes('clearance') || desc.includes('us citizen')
+            clearance: desc.includes('clearance') || desc.includes('us citizen') || desc.includes('u.s. citizen')
         })
     }
 
-    console.log({ type, loc, com, title })
+    console.log({ length: dbJobs.length, type, loc, com, title })
 
     return <App jobs={jobs}/>
 }
