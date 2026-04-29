@@ -3,18 +3,31 @@ import { App, Job } from './page_but_client'
 
 const bannedCompanies = [
     'Turing',
+    'DataAnnotation',
+    'Meridial Marketplace, by Invisible',
+    'Twine',
+
     'Crossing Hurdles',
     'Jobright.ai',
     'Jobs Ai',
+    'Ladders',
     'Jobs via Dice',
-    'Quik Hire Staffing',
     'Jack & Jill',
     'Stealth Startup',
-    'Recruiting from Scratch',
     'RemoteHunter',
-    'Haystack',
+    'Sundayy',
     'Underdog.io -Apply to top tech jobs in 60 seconds. A place where companies apply to you',
+    'Jobgether',
+    'FetchJobs.co',
+
+    'Quik Hire Staffing',
+    'Recruiting from Scratch',
+    'Haystack',
     'Applicantz',
+
+    // ask more questions
+    'Rally',
+    'CFRA Research',
 ]
 
 const getYears = /(\d+)(\s*[-–—]\s*\d+)?\+? (years|experience)/g
@@ -24,13 +37,14 @@ export default async function() {
     const dbJobs = await P.prisma.job.findMany({
         where: {
             time: {
-                gt: Date.now() - 24 * 60 * 60 * 1000,
+                gt: Date.now() - 5 * 60 * 60 * 1000,
             }
         }
     })
     const statuses = new Set((await P.prisma.status.findMany({ where: { id: { in: dbJobs.map(it => it.id) } } })).map(it => it.id))
 
-    let type = 0
+    let matchStrict = 0
+    let matchLoose = 0
     let loc = 0
     let com = 0
     let title = 0
@@ -43,16 +57,19 @@ export default async function() {
         const jobTitle = dbJob.jobTitle.toLowerCase()
         const desc = dbJob.jobDescription.toLowerCase()
         const years = (() => {
-            const years = Math.max(...[...desc.matchAll(getYears)].map(it => Number.parseInt(it[1], 10)))
-            if(years > 10) return -Infinity
-            return years
+            return Math.max(...[...desc.matchAll(getYears)].map(it => Number.parseInt(it[1], 10)).filter(it => it <= 10))
         })()
 
         let match = true
 
-        if(!(desc.includes('typescript') || desc.includes('type script'))) {
+        const strictTypescript = desc.includes('typescript') || desc.includes('type script')
+        const looseTypeScript = desc.includes('node.js') || desc.includes('nodejs') || desc.includes('react.js') || desc.includes('reactjs')
+
+        if(strictTypescript) matchStrict++
+        if(looseTypeScript) matchLoose++
+
+        if(!(strictTypescript || looseTypeScript)) {
             match = false
-            type++
         }
         if(!dbJob.jobLocation.toLowerCase().includes('united states')) {
             match = false
@@ -62,7 +79,7 @@ export default async function() {
             match = false
             com++
         }
-        if(/\b(lead|staff|principal|java|python|director|manager)\b/.test(jobTitle)) {
+        if(/\b(lead|staff|principal|java|python|director|manager|head of|servicenow|intern|internship)\b/.test(jobTitle)) {
             match = false
             title++
         }
@@ -80,7 +97,7 @@ export default async function() {
         })
     }
 
-    console.log({ length: dbJobs.length, type, loc, com, title })
+    console.log({ length: dbJobs.length, loc, com, title })
 
     return <App jobs={jobs}/>
 }

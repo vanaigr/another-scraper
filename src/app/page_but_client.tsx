@@ -6,6 +6,7 @@ export type Job = {
     id: string
     jobTitle: string
     companyName: string
+    jobLocation: string
     jobDescriptionHtml: string
     years: number
     clearance: boolean
@@ -20,7 +21,7 @@ export function App({ jobs: jobs0 }: { jobs: Job[] }) {
             {jobs.map(it => {
                 return <button
                     key={it.id}
-                    className={'text-left p-2' + (it === selected ? ' bg-blue-200' : '')}
+                    className={'text-left p-2 border-gray-300 border-b' + (it === selected ? ' bg-blue-200' : '')}
                     onClick={() => setSelected(it)}
                 >
                     <div className='flex items-start'>
@@ -35,7 +36,7 @@ export function App({ jobs: jobs0 }: { jobs: Job[] }) {
                             X
                         </button>
                     </div>
-                    <div className='text-sm'>{it.companyName}</div>
+                    <div className='text-sm'>{it.companyName} | {it.jobLocation}</div>
                     <div className='flex flex-wrap gap-2'>
                         {it.years !== -Infinity && <div>{it.years} years</div>}
                         {it.clearance && <div className='bg-yellow-400'>clearance</div>}
@@ -43,7 +44,7 @@ export function App({ jobs: jobs0 }: { jobs: Job[] }) {
                 </button>
             })}
         </div>
-        <div className='flex flex-1 p-4 overflow-y-scroll'>
+        <div className='flex flex-col flex-1 p-4 overflow-y-scroll'>
             {(() => {
                 if(!selected) return
 
@@ -57,8 +58,8 @@ export function App({ jobs: jobs0 }: { jobs: Job[] }) {
                     return `<span class="bg-yellow-400">${it}</span>`
                 })
 
-                return <div>
-                    <div className='flex gap-2 mb-4'>
+                return <>
+                    <div className='flex gap-2 sticky -top-4 bg-white p-8 -m-4 mb-4'>
                         <button
                             className='text-white bg-blue-400 px-4 py-2'
                             onClick={() => {
@@ -88,7 +89,7 @@ export function App({ jobs: jobs0 }: { jobs: Job[] }) {
                     </div>
 
                     <div dangerouslySetInnerHTML={{ __html: html }}/>
-                </div>
+                </>
             })()}
         </div>
     </div>
