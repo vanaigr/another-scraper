@@ -19,7 +19,7 @@ export function App({ jobs: jobs0 }: { jobs: Job[] }) {
     return <div className='max-h-full flex flex-1'>
         <div className='w-80 flex flex-col overflow-y-scroll'>
             {jobs.map(it => {
-                return <button
+                return <div
                     key={it.id}
                     className={'text-left p-2 border-gray-300 border-b' + (it === selected ? ' bg-blue-200' : '')}
                     onClick={() => setSelected(it)}
@@ -29,8 +29,8 @@ export function App({ jobs: jobs0 }: { jobs: Job[] }) {
                         <div className='flex-1'/>
                         <button
                             onClick={() => {
-                                A.markHidden(selected.id)
-                                setJobs(jobs.filter(it => it !== selected))
+                                A.markHidden(it.id)
+                                setJobs(jobs.filter(it2 => it2 !== it))
                             }}
                         >
                             X
@@ -41,7 +41,7 @@ export function App({ jobs: jobs0 }: { jobs: Job[] }) {
                         {it.years !== -Infinity && <div>{it.years} years</div>}
                         {it.clearance && <div className='bg-yellow-400'>clearance</div>}
                     </div>
-                </button>
+                </div>
             })}
         </div>
         <div className='flex flex-col flex-1 p-4 overflow-y-scroll'>
