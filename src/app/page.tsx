@@ -65,7 +65,10 @@ export default async function() {
         let match = true
 
         const strictTypescript = desc.includes('typescript') || desc.includes('type script')
-        const looseTypeScript = desc.includes('node.js') || desc.includes('nodejs') || desc.includes('react.js') || desc.includes('reactjs')
+        const looseTypeScript = dbJob.jobDescription.includes('Node')
+            || desc.includes('nodejs')
+            || dbJob.jobDescription.includes('React')
+            || desc.includes('react')
 
         if(strictTypescript) matchStrict++
         if(looseTypeScript) matchLoose++

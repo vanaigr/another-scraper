@@ -4,6 +4,8 @@ import * as L from './lib/log.ts'
 import puppeteer from './puppeteer.ts'
 import * as P from './prisma.ts'
 
+const log = L.makeLogger('./log.txt')
+
 const browser = await puppeteer.launch({
     headless: false,
     //headless: true,
@@ -27,10 +29,10 @@ await page.keyboard.press('Enter');
     url.searchParams.set('keywords', 'typescript')
     //url.searchParams.set('keywords', 'full stack')
     url.searchParams.set('f_TPR', 'r86400') // past 24 hours
-    //url.searchParams.set('f_SAL', 'f_SA_id_225001:272001') // remote
-    url.searchParams.set('geoId', '101949407') // Illinois
-    //url.searchParams.set('geoId', '103644278') // United States
-    //url.searchParams.set('f_AL', 'true') // easy apply
+    url.searchParams.set('f_SAL', 'f_SA_id_225001:272001') // remote
+    //url.searchParams.set('geoId', '101949407') // Illinois
+    url.searchParams.set('geoId', '103644278') // United States
+    url.searchParams.set('f_AL', 'true') // easy apply
 
     await page.goto(url.toString())
 }
@@ -38,13 +40,16 @@ await page.keyboard.press('Enter');
 
 const now = Date.now()
 
+let total = 0
+let mismatch = 0
+
 let i = 1
 outer: while(true) {
     const listSelector = '[componentkey="SearchResultsMainContent"]'
     const cardSelector = 'div[data-display-contents="true"][style]'
 
     await page.waitForSelector(listSelector)
-    console.log('Checking page', i)
+    log.I('Checking page ', [i])
     i++
 
     const jobCount = await page.evaluate(({ listSelector, cardSelector }) => {
@@ -52,7 +57,7 @@ outer: while(true) {
     }, { listSelector, cardSelector })
 
     for(let j = 0; j < jobCount; j++) {
-        console.log('Checking job', j)
+        log.I('  Checking job ', [j])
 
         try {
             await page.evaluate(({ listSelector, cardSelector, j }) => {
@@ -93,7 +98,18 @@ outer: while(true) {
                 jobDescriptionHtml: jobDetailsRaw.descriptionHtml,
             }
 
-            console.log('saving job details')
+            total++
+            const desc = jobDetails.jobDescription.toLowerCase()
+            if(!(
+                jobDetails.jobDescription.includes('Node')
+                    || desc.includes('nodejs')
+                    || jobDetails.jobDescription.includes('React')
+                    || desc.includes('reactjs')
+            )) {
+                log.W('  Missing the keywords I put in the search...')
+                mismatch++
+            }
+
             await P.prisma.job.upsert({
                 where: { id: jobDetails.id },
                 create: jobDetails,
@@ -101,7 +117,7 @@ outer: while(true) {
             })
         }
         catch(err) {
-            console.error('While checking job', err)
+            log.E('While checking job: ', [err])
             break outer
         }
     }
@@ -111,10 +127,13 @@ outer: while(true) {
         await U.delay(5)
     }
     catch(err) {
-        console.log('No next page')
+        log.I('No next page')
         break
     }
 }
 
-console.log('done')
+log.I('done')
+
+log.I('Total scraped: ', [total], ', mismatched: ', [mismatch])
+
 await browser.close()
