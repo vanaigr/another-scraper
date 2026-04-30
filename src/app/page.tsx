@@ -28,6 +28,7 @@ const bannedCompanies = [
     // ask more questions
     'Rally',
     'CFRA Research',
+    'Owner.com',
 ]
 
 const getYears = /(\d+)(\s*[-–—]\s*\d+)?\+? (years|experience)/g
@@ -37,7 +38,7 @@ export default async function() {
     const dbJobs = await P.prisma.job.findMany({
         where: {
             time: {
-                gt: Date.now() - 5 * 60 * 60 * 1000,
+                gt: Date.now() - 2 * 60 * 60 * 1000,
             }
         }
     })
@@ -59,6 +60,7 @@ export default async function() {
         const years = (() => {
             return Math.max(...[...desc.matchAll(getYears)].map(it => Number.parseInt(it[1], 10)).filter(it => it <= 10))
         })()
+        const location = dbJob.jobLocation.toLowerCase()
 
         let match = true
 
@@ -71,7 +73,11 @@ export default async function() {
         if(!(strictTypescript || looseTypeScript)) {
             match = false
         }
-        if(!dbJob.jobLocation.toLowerCase().includes('united states')) {
+        if(!(
+            (location.includes('united states') && !location.includes('on-site') && !location.includes('hybrid'))
+                || dbJob.jobLocation.includes('IL')
+                || location.includes('illinois')
+        )) {
             match = false
             loc++
         }
@@ -79,7 +85,7 @@ export default async function() {
             match = false
             com++
         }
-        if(/\b(lead|staff|principal|java|python|director|manager|head of|servicenow|intern|internship)\b/.test(jobTitle)) {
+        if(/\b(lead|staff|principal|java|python|ruby|director|manager|head of|servicenow|intern|internship)\b/.test(jobTitle)) {
             match = false
             title++
         }
@@ -97,7 +103,7 @@ export default async function() {
         })
     }
 
-    console.log({ length: dbJobs.length, loc, com, title })
+    console.log({ length: dbJobs.length, matchStrict, matchLoose, loc, com, title })
 
     return <App jobs={jobs}/>
 }
