@@ -89,7 +89,7 @@ export default async function() {
             match = false
             com++
         }
-        if(/\b(intern|internship|lead|staff|director|principal|head of|manager|java|python|ruby|servicenow|)\b/.test(jobTitle)) {
+        if(/\b(intern|internship|lead|staff|director|principal|head of|manager|java|python|ruby|servicenow)\b/.test(jobTitle)) {
             match = false
             title++
         }
@@ -116,6 +116,7 @@ export default async function() {
         loc,
         com,
         title,
+        result: jobs.length,
     })
 
     return <App jobs={jobs}/>
