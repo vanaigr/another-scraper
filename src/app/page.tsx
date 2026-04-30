@@ -93,10 +93,12 @@ export default async function() {
             match = false
             title++
         }
+        /*
         if(years >= 5) {
             match = false
             experience++
         }
+        */
 
         if(!match) continue
 
