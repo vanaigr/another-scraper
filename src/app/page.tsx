@@ -89,7 +89,7 @@ export default async function() {
             match = false
             com++
         }
-        if(/\b(lead|staff|principal|java|python|ruby|director|manager|head of|servicenow|intern|internship)\b/.test(jobTitle)) {
+        if(/\b(intern|internship|lead|staff|director|principal|head of|manager|java|python|ruby|servicenow|)\b/.test(jobTitle)) {
             match = false
             title++
         }
