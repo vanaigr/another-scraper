@@ -24,10 +24,12 @@ await page.keyboard.press('Enter');
 
 {
     const url = new URL('https://www.linkedin.com/jobs/search-results')
-    //url.searchParams.set('keywords', 'typescript')
-    url.searchParams.set('keywords', 'full stack')
+    url.searchParams.set('keywords', 'typescript')
+    //url.searchParams.set('keywords', 'full stack')
     url.searchParams.set('f_TPR', 'r86400') // past 24 hours
-    url.searchParams.set('f_SAL', 'f_SA_id_225001:272001') // remote
+    //url.searchParams.set('f_SAL', 'f_SA_id_225001:272001') // remote
+    url.searchParams.set('geoId', '101949407') // Illinois
+    //url.searchParams.set('geoId', '103644278') // United States
     //url.searchParams.set('f_AL', 'true') // easy apply
 
     await page.goto(url.toString())
