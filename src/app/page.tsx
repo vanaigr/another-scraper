@@ -76,6 +76,7 @@ export default async function() {
         if(!(strictTypescript || looseTypeScript)) {
             match = false
         }
+
         if(!(
             (location.includes('united states') && !location.includes('on-site') && !location.includes('hybrid'))
                 || dbJob.jobLocation.includes('IL')
@@ -106,7 +107,14 @@ export default async function() {
         })
     }
 
-    console.log({ length: dbJobs.length, matchStrict, matchLoose, loc, com, title })
+    console.log({
+        length: dbJobs.length,
+        mismatchStrict: dbJobs.length - matchStrict,
+        mismatchLoose: dbJobs.length - matchLoose,
+        loc,
+        com,
+        title,
+    })
 
     return <App jobs={jobs}/>
 }
