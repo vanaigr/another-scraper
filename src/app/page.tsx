@@ -30,6 +30,7 @@ const bannedCompanies = [
     'Haystack',
     'Applicantz',
     'Motion Recruitment',
+    'TalentAlly',
 
     // ask more questions
     'Rally',
@@ -47,6 +48,69 @@ const bannedCompanies = [
 
 const getYears = /(\d+)(\s*[-–—]\s*\d+)?\+? (years|experience)/g
 
+/**
+Scam:
+
+Role: Full Stack React Developer (Remote)
+Location: Remote (Work from Anywhere)
+Payout: $20-$45/hour
+Role Overview:
+One of our clients, a global leader in the Technology industry, is seeking a skilled Frontend Developer (React) to join their team on a contract basis. As a key member of the development team, you will be responsible for designing, developing, and maintaining responsive web applications using React.js and modern JavaScript. You will collaborate closely with cross-functional teams to deliver high-quality features and ensure seamless user experiences.
+Key Responsibilities:
+• Design, develop, and maintain responsive web applications using React.js and modern JavaScript.
+• Collaborate closely with UI/UX designers, backend engineers, and product managers to deliver high-quality features.
+• Translate wireframes and visual designs into interactive and accessible interfaces.
+• Ensure cross-browser compatibility and optimize applications for speed and scalability.
+• Write clean, reusable, and well-documented code following best practices.
+• Contribute to code reviews, provide constructive feedback, and mentor junior developers.
+Required Skills & Qualifications:
+• Proficient in React.js and modern JavaScript
+• Strong understanding of web development principles, including HTML5, CSS3, and responsive design
+• Experience with UI/UX design principles and wireframing tools
+• Knowledge of cross-browser compatibility and optimization techniques
+• Familiarity with code review processes and best practices
+• Strong communication and collaboration skills
+More About the Opportunity:
+This contract role offers the opportunity to work with a cutting-edge technology platform, collaborating with a talented team of developers and designers to deliver high-quality features and experiences.
+Equal Opportunity Employer:
+We hire based on skills and expertise. All qualified candidates are welcome regardless of background, experience, or prior employment history. Applications are reviewed solely on demonstrated technical ability and qualifications.
+Apply Now!
+
+
+Role: Angular Developer (Remote)
+Location: Remote (Work from Anywhere)
+Payout: Competitive
+Role Overview:
+Join one of our clients, a global leader in the Artificial Intelligence industry, as a Frontend Engineer (Angular) to craft seamless, high-performance user interfaces. This contractor role involves leveraging advanced expertise in React, Angular, HTML, and CSS to deliver innovative solutions that drive engagement and usability. The ideal candidate thrives in a collaborative environment and is passionate about frontend technologies.
+Key Responsibilities:
+• Design, develop, and implement robust frontend solutions using Angular and React frameworks.
+• Collaborate closely with cross-functional teams to translate business requirements into scalable web applications.
+• Ensure consistent and responsive UI/UX across a variety of devices and browsers.
+• Write clean, maintainable, and efficient code following industry best practices.
+• Participate in code reviews and provide constructive feedback to peers.
+Required Skills & Qualifications:
+• Expertise in Angular, React, HTML, and CSS.
+• Proficiency in JavaScript and modern frontend development tools and frameworks.
+• Strong understanding of UI/UX principles and responsive design.
+• Experience with version control systems, such as Git.
+• Excellent problem-solving skills and attention to detail.
+More About the Opportunity:
+This is a remote contractor opportunity that requires a strong background in frontend technologies and a passion for collaborating with expert teams.
+Equal Opportunity Employer:
+We hire based on skills and expertise. All qualified candidates are welcome regardless of background, experience, or prior employment history. Applications are reviewed solely on demonstrated technical ability and qualifications.
+Apply Now!
+*/
+const bstences = [
+    'Role:',
+    'Location:',
+    'Payout:',
+    'Role Overview:',
+    'Key Responsibilities:',
+    'Remote (Work from Anywhere)',
+    'Required Skills & Qualifications:',
+    'We hire based on skills and expertise. All qualified candidates are welcome regardless of background, experience, or prior employment history. Applications are reviewed solely on demonstrated technical ability and qualifications',
+    'Apply Now!',
+].map(it => it.toLowerCase())
 
 export default async function() {
     const dbJobs = await P.prisma.job.findMany({
@@ -64,6 +128,7 @@ export default async function() {
     let com = 0
     let title = 0
     let experience = 0
+    let bs = 0
 
     const jobs: Job[] = []
     for(const dbJob of dbJobs) {
@@ -114,6 +179,15 @@ export default async function() {
         }
         */
 
+        const bs1 = /Role: [\s\S]*?Location: Remote \(Work from Anywhere\)[\s\S]*?Payout: [\s\S]*?Role Overview:[\s\S]*?Key Responsibilities:[\s\S]+?Required Skills & Qualifications:[\s\S]*?Equal Opportunity Employer:[\s\S]*?We hire based on skills and expertise\. All qualified candidates are welcome regardless of background, experience, or prior employment history\. Applications are reviewed solely on demonstrated technical ability and qualifications\.[\s\S]*?Apply Now!/.test(dbJob.jobDescription)
+        const bs2 = bstences.filter(sentence => desc.includes(sentence)).length === bstences.length
+
+        if(bs1) {
+            bs++
+            match = false
+        }
+        if(bs1 !== bs2) console.log('!!!', dbJob.jobDescription)
+
         if(!match) continue
 
         jobs.push({
@@ -130,6 +204,7 @@ export default async function() {
         loc,
         com,
         title,
+        bs,
         result: jobs.length,
     })
 
