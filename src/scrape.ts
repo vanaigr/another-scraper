@@ -106,7 +106,7 @@ try {
                     const linkEls = document.querySelectorAll(`${jobDescCont} a`)
                     const companyEl = linkEls[1]
                     const titleEl = linkEls[2]
-                    const descEl = document.querySelector('[data-testid="expandable-text-box"]')
+                    const descEl = document.querySelector('[data-sdui-component="com.linkedin.sdui.generated.jobseeker.dsl.impl.aboutTheJob"]')
                     const locationEl = document.querySelectorAll(`${listSelector} > ${cardSelector}`)[j]!.querySelectorAll('p')[2]
 
                     return {
