@@ -6,6 +6,8 @@ const bannedCompanies = [
     'DataAnnotation',
     'Meridial Marketplace, by Invisible',
     'Twine',
+    'micro1', // don't worry, you are not our free training data
+    'Alignerr',
 
     'Crossing Hurdles',
     'Jobright.ai',
@@ -19,16 +21,28 @@ const bannedCompanies = [
     'Underdog.io -Apply to top tech jobs in 60 seconds. A place where companies apply to you',
     'Jobgether',
     'FetchJobs.co',
+    'AgileGrid Solutions', // best job tool
+    'Joinrs',
+    'Company Confidential',
 
     'Quik Hire Staffing',
     'Recruiting from Scratch',
     'Haystack',
     'Applicantz',
+    'Motion Recruitment',
 
     // ask more questions
     'Rally',
     'CFRA Research',
     'Owner.com',
+    'ShipBob',
+
+    // spammy
+    'Veeva Systems',
+    'Affirm',
+    'CapitalOne', // TODO: 2 words?
+
+    'Microsoft',
 ]
 
 const getYears = /(\d+)(\s*[-–—]\s*\d+)?\+? (years|experience)/g
@@ -38,7 +52,7 @@ export default async function() {
     const dbJobs = await P.prisma.job.findMany({
         where: {
             time: {
-                gt: Date.now() - 2 * 60 * 60 * 1000,
+                gt: Date.now() - 3 * 60 * 60 * 1000,
             }
         }
     })
