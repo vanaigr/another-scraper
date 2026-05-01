@@ -14,6 +14,7 @@ const browser = await puppeteer.launch({
 browser.setCookie(...JSON.parse(fs.readFileSync('data/cookies.txt').toString()))
 const page = await browser.newPage()
 await page.setBypassCSP(true)
+await page.setViewport({ width: 1920, height: 1080 })
 
 /*
 await page.goto('https://www.linkedin.com/jobs/search-results')
@@ -24,6 +25,36 @@ await page.focus(inputSelector);
 await page.keyboard.press('Enter');
 */
 
+/**
+Scam 1:
+
+Role: Full Stack React Developer (Remote)
+Location: Remote (Work from Anywhere)
+Payout: $20-$45/hour
+Role Overview:
+One of our clients, a global leader in the Technology industry, is seeking a skilled Frontend Developer (React) to join their team on a contract basis. As a key member of the development team, you will be responsible for designing, developing, and maintaining responsive web applications using React.js and modern JavaScript. You will collaborate closely with cross-functional teams to deliver high-quality features and ensure seamless user experiences.
+Key Responsibilities:
+• Design, develop, and maintain responsive web applications using React.js and modern JavaScript.
+• Collaborate closely with UI/UX designers, backend engineers, and product managers to deliver high-quality features.
+• Translate wireframes and visual designs into interactive and accessible interfaces.
+• Ensure cross-browser compatibility and optimize applications for speed and scalability.
+• Write clean, reusable, and well-documented code following best practices.
+• Contribute to code reviews, provide constructive feedback, and mentor junior developers.
+Required Skills & Qualifications:
+• Proficient in React.js and modern JavaScript
+• Strong understanding of web development principles, including HTML5, CSS3, and responsive design
+• Experience with UI/UX design principles and wireframing tools
+• Knowledge of cross-browser compatibility and optimization techniques
+• Familiarity with code review processes and best practices
+• Strong communication and collaboration skills
+More About the Opportunity:
+This contract role offers the opportunity to work with a cutting-edge technology platform, collaborating with a talented team of developers and designers to deliver high-quality features and experiences.
+Equal Opportunity Employer:
+We hire based on skills and expertise. All qualified candidates are welcome regardless of background, experience, or prior employment history. Applications are reviewed solely on demonstrated technical ability and qualifications.
+Apply Now!
+*/
+
+
 {
     const url = new URL('https://www.linkedin.com/jobs/search-results')
     url.searchParams.set('keywords', 'typescript')
@@ -32,8 +63,9 @@ await page.keyboard.press('Enter');
     url.searchParams.set('f_SAL', 'f_SA_id_225001:272001') // remote
     //url.searchParams.set('geoId', '101949407') // Illinois
     url.searchParams.set('geoId', '103644278') // United States
-    url.searchParams.set('f_AL', 'true') // easy apply
+    //url.searchParams.set('f_AL', 'true') // easy apply
 
+    log.I('Opening ', [url.toString()])
     await page.goto(url.toString())
 }
 
