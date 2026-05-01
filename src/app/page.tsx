@@ -168,7 +168,7 @@ export default async function() {
             match = false
             com++
         }
-        if(/\b(intern|internship|lead|staff|director|principal|head of|manager|java|python|ruby|servicenow)\b/.test(jobTitle)) {
+        if(/\b(intern|internship|lead|staff|director|principal|head of|manager|java|python|ruby|servicenow|qa|tutor|instructor)\b/.test(jobTitle)) {
             match = false
             title++
         }
