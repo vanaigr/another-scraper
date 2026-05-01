@@ -37,103 +37,116 @@ await page.keyboard.press('Enter');
     await page.goto(url.toString())
 }
 
-
-const now = Date.now()
-
 let total = 0
 let mismatch = 0
 
-let i = 1
-outer: while(true) {
-    const listSelector = '[componentkey="SearchResultsMainContent"]'
-    const cardSelector = 'div[data-display-contents="true"][style]'
+try {
+    const now = Date.now()
 
-    await page.waitForSelector(listSelector)
-    log.I('Checking page ', [i])
-    i++
+    let i = 1
+    outer: while(true) {
+        const listSelector = '[componentkey="SearchResultsMainContent"]'
+        const cardSelector = 'div[data-display-contents="true"][style]'
 
-    const jobCount = await page.evaluate(({ listSelector, cardSelector }) => {
-        return document.querySelectorAll(`${listSelector} > ${cardSelector}`).length
-    }, { listSelector, cardSelector })
+        await page.waitForSelector(listSelector)
+        log.I('Checking page ', [i])
+        i++
 
-    for(let j = 0; j < jobCount; j++) {
-        log.I('  Checking job ', [j])
+        const jobCount = await page.evaluate(({ listSelector, cardSelector }) => {
+            return document.querySelectorAll(`${listSelector} > ${cardSelector}`).length
+        }, { listSelector, cardSelector })
+
+        for(let j = 0; j < jobCount; j++) {
+            log.I('  Checking job ', [j])
+
+            try {
+                await page.evaluate(({ listSelector, cardSelector, j }) => {
+                    const card = document.querySelectorAll(`${listSelector} > ${cardSelector}`)[j]
+                    ;(card!.childNodes[0]!.childNodes[0]!.childNodes[0]! as any).click()
+                }, { listSelector, cardSelector, j })
+
+                await U.delay(1)
+                const jobDescCont = '[data-sdui-screen="com.linkedin.sdui.flagshipnav.jobs.SemanticJobDetails"]'
+                await page.waitForSelector(`${jobDescCont} [aria-label="More options"]`)
+                await page.waitForSelector(`${jobDescCont} [data-testid="expandable-text-box"]`)
+
+                const jobDetailsRaw = await page.evaluate(({ listSelector, cardSelector, j, jobDescCont }) => {
+                    const linkEls = document.querySelectorAll(`${jobDescCont} a`)
+                    const companyEl = linkEls[1]
+                    const titleEl = linkEls[2]
+                    const descEl = document.querySelector('[data-testid="expandable-text-box"]')
+                    const locationEl = document.querySelectorAll(`${listSelector} > ${cardSelector}`)[j]!.querySelectorAll('p')[2]
+
+                    return {
+                        id: new URL('' + window.location).searchParams.get('currentJobId')!,
+                        companyUrl: companyEl.getAttribute('href')!,
+                        companyTitle: companyEl.textContent,
+                        roleTitle: titleEl.textContent,
+                        location: locationEl.textContent,
+                        descriptionHtml: descEl!.innerHTML,
+                        description: descEl!.textContent.replace(/\s+/, ' ').trim(),
+                    }
+                }, { listSelector, cardSelector, j, jobDescCont })
+                const jobDetails: P.job = {
+                    id: jobDetailsRaw.id,
+                    time: now,
+                    companyUrl: jobDetailsRaw.companyUrl,
+                    companyName: jobDetailsRaw.companyTitle,
+                    jobTitle: jobDetailsRaw.roleTitle,
+                    jobLocation: jobDetailsRaw.location,
+                    jobDescription: jobDetailsRaw.description,
+                    jobDescriptionHtml: jobDetailsRaw.descriptionHtml,
+                }
+
+                total++
+                const desc = jobDetails.jobDescription.toLowerCase()
+                if(!(
+                    jobDetails.jobDescription.includes('Node')
+                        || desc.includes('nodejs')
+                        || jobDetails.jobDescription.includes('React')
+                        || desc.includes('reactjs')
+                )) {
+                    log.W('  Missing the keywords I put in the search...')
+                    mismatch++
+                }
+
+                await P.prisma.job.upsert({
+                    where: { id: jobDetails.id },
+                    create: jobDetails,
+                    update: jobDetails,
+                })
+            }
+            catch(err) {
+                log.E('While checking job: ', [err])
+                await page.screenshot({ path: `debug-job-${i}-${j}.png`, fullPage: true })
+                fs.writeFileSync(`debug-job-${i}-${j}.html`, await page.content())
+                break outer
+            }
+        }
 
         try {
-            await page.evaluate(({ listSelector, cardSelector, j }) => {
-                const card = document.querySelectorAll(`${listSelector} > ${cardSelector}`)[j]
-                ;(card!.childNodes[0]!.childNodes[0]!.childNodes[0]! as any).click()
-            }, { listSelector, cardSelector, j })
-
-            await U.delay(1)
-            const jobDescCont = '[data-sdui-screen="com.linkedin.sdui.flagshipnav.jobs.SemanticJobDetails"]'
-            await page.waitForSelector(`${jobDescCont} [aria-label="More options"]`)
-            await page.waitForSelector(`${jobDescCont} [data-testid="expandable-text-box"]`)
-
-            const jobDetailsRaw = await page.evaluate(({ listSelector, cardSelector, j, jobDescCont }) => {
-                const linkEls = document.querySelectorAll(`${jobDescCont} a`)
-                const companyEl = linkEls[1]
-                const titleEl = linkEls[2]
-                const descEl = document.querySelector('[data-testid="expandable-text-box"]')
-                const locationEl = document.querySelectorAll(`${listSelector} > ${cardSelector}`)[j]!.querySelectorAll('p')[2]
-
-                return {
-                    id: new URL('' + window.location).searchParams.get('currentJobId')!,
-                    companyUrl: companyEl.getAttribute('href')!,
-                    companyTitle: companyEl.textContent,
-                    roleTitle: titleEl.textContent,
-                    location: locationEl.textContent,
-                    descriptionHtml: descEl!.innerHTML,
-                    description: descEl!.textContent.replace(/\s+/, ' ').trim(),
-                }
-            }, { listSelector, cardSelector, j, jobDescCont })
-            const jobDetails: P.job = {
-                id: jobDetailsRaw.id,
-                time: now,
-                companyUrl: jobDetailsRaw.companyUrl,
-                companyName: jobDetailsRaw.companyTitle,
-                jobTitle: jobDetailsRaw.roleTitle,
-                jobLocation: jobDetailsRaw.location,
-                jobDescription: jobDetailsRaw.description,
-                jobDescriptionHtml: jobDetailsRaw.descriptionHtml,
-            }
-
-            total++
-            const desc = jobDetails.jobDescription.toLowerCase()
-            if(!(
-                jobDetails.jobDescription.includes('Node')
-                    || desc.includes('nodejs')
-                    || jobDetails.jobDescription.includes('React')
-                    || desc.includes('reactjs')
-            )) {
-                log.W('  Missing the keywords I put in the search...')
-                mismatch++
-            }
-
-            await P.prisma.job.upsert({
-                where: { id: jobDetails.id },
-                create: jobDetails,
-                update: jobDetails,
-            })
+            await page.click('[data-testid="pagination-controls-next-button-visible"]')
+            await U.delay(5)
         }
         catch(err) {
-            log.E('While checking job: ', [err])
-            break outer
+            log.I('No next page')
+            break
         }
     }
-
-    try {
-        await page.click('[data-testid="pagination-controls-next-button-visible"]')
-        await U.delay(5)
-    }
-    catch(err) {
-        log.I('No next page')
-        break
-    }
+}
+catch(err) {
+    log.E('While scraping: ', [err])
 }
 
-log.I('done')
+log.I('Done. Total scraped: ', [total], ', mismatched: ', [mismatch])
 
-log.I('Total scraped: ', [total], ', mismatched: ', [mismatch])
+try {
+    const cookies = await browser.cookies()
+    log.I('Saving cookies')
+    fs.writeFileSync('data/cookies.txt', JSON.stringify(cookies))
+}
+catch(err) {
+    log.E('while saving cookies: ', [err])
+}
 
 await browser.close()
