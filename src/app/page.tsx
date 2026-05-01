@@ -8,6 +8,7 @@ const bannedCompanies = [
     'Twine',
     'micro1', // don't worry, you are not our free training data
     'Alignerr',
+    'CyberCoders',
 
     'Crossing Hurdles',
     'Jobright.ai',
@@ -160,6 +161,7 @@ export default async function() {
             (location.includes('united states') && !location.includes('on-site') && !location.includes('hybrid'))
                 || dbJob.jobLocation.includes('IL')
                 || location.includes('illinois')
+                //|| location.includes('remote')
         )) {
             match = false
             loc++
