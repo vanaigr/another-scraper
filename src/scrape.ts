@@ -77,6 +77,7 @@ try {
                     const companyEl = linkEls[1]
                     const titleEl = linkEls[2]
                     const descEl = document.querySelector('[data-sdui-component="com.linkedin.sdui.generated.jobseeker.dsl.impl.aboutTheJob"]')
+                       ?? document.querySelector('[data-testid="expandable-text-box"]')
                     const locationEl = document.querySelectorAll(`${listSelector} > ${cardSelector}`)[j]!.querySelectorAll('p')[2]
 
                     return {
@@ -122,7 +123,7 @@ try {
                 log.E('While checking job: ', [err])
                 await page.screenshot({ path: `debug-job-${i}-${j}.png`, fullPage: true })
                 fs.writeFileSync(`debug-job-${i}-${j}.html`, await page.content())
-                break outer
+                //break outer
             }
         }
 
