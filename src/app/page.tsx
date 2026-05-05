@@ -38,6 +38,7 @@ const bannedCompanies = [
     'CFRA Research',
     'Owner.com',
     'ShipBob',
+    'CareMetx, LLC',
 
     // spammy
     'Veeva Systems',
@@ -47,7 +48,7 @@ const bannedCompanies = [
     'Microsoft',
 ]
 
-const getYears = /(\d+)(\s*[-–—]\s*\d+)?\+? (years|experience)/g
+const getYears = /(\d+)(\s*[-–—]\s*\d+)?\+? (yrs|years|experience)/g
 
 const bstences = [
     'Role:',
@@ -118,7 +119,7 @@ export default async function() {
             match = false
             com++
         }
-        if(/\b(intern|internship|lead|staff|director|principal|head of|manager|java|python|ruby|servicenow|qa|tutor|instructor)\b/.test(jobTitle)) {
+        if(/\b(intern|internship|lead|staff|director|principal|head of|manager|sdet|java|python|ruby|servicenow|qa|tutor|instructor)\b/.test(jobTitle)) {
             match = false
             title++
         }
@@ -146,6 +147,7 @@ export default async function() {
             clearance: desc.includes('clearance') || desc.includes('us citizen') || desc.includes('u.s. citizen')
         })
     }
+
 
     console.log({
         length: dbJobs.length,

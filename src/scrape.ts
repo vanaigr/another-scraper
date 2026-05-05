@@ -32,12 +32,12 @@ await page.keyboard.press('Enter');
     url.searchParams.set('keywords', 'typescript')
     //url.searchParams.set('keywords', 'full stack')
 
-    url.searchParams.set('geoId', '103644278') // United States
-    url.searchParams.set('f_SAL', 'f_SA_id_225001:272001') // remote
+    //url.searchParams.set('geoId', '103644278') // United States
+    //url.searchParams.set('f_SAL', 'f_SA_id_225001:272001') // remote
 
-    //url.searchParams.set('geoId', '101949407') // Illinois
+    url.searchParams.set('geoId', '101949407') // Illinois
 
-    url.searchParams.set('f_AL', 'true') // easy apply
+    //url.searchParams.set('f_AL', 'true') // easy apply
 
     log.I('Opening ', [url.toString()])
     await page.goto(url.toString())
@@ -77,6 +77,7 @@ try {
                 await page.waitForSelector(`${jobDescCont} [data-testid="expandable-text-box"]`)
 
                 const jobDetailsRaw = await page.evaluate(({ listSelector, cardSelector, j, jobDescCont }) => {
+                    // TODO: company may be empty, for some reason. I have no idea how to check for that rn.
                     const linkEls = document.querySelectorAll(`${jobDescCont} a`)
                     const companyEl = linkEls[1]
                     const titleEl = linkEls[2]
