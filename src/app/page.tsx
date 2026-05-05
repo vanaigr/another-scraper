@@ -9,6 +9,7 @@ const bannedCompanies = [
     'micro1', // don't worry, you are not our free training data
     'Alignerr',
     'CyberCoders',
+    'Hire Feed', // micro1/outlier.ai
 
     'Crossing Hurdles',
     'Jobright.ai',
@@ -39,6 +40,9 @@ const bannedCompanies = [
     'Owner.com',
     'ShipBob',
     'CareMetx, LLC',
+    'Southwest Airlines',
+    'OnePay',
+    'PlanIT Group, LLC', // borken (sic)
 
     // spammy
     'Veeva Systems',
@@ -119,16 +123,14 @@ export default async function() {
             match = false
             com++
         }
-        if(/\b(intern|internship|lead|staff|director|principal|head of|manager|sdet|java|python|ruby|servicenow|qa|tutor|instructor)\b/.test(jobTitle)) {
+        if(/\b(intern|internship|lead|staff|director|principal|head of|manager|sdet|java|python|ruby|servicenow|qa|tutor|instructor|in test)\b/.test(jobTitle)) {
             match = false
             title++
         }
-        /*
         if(years >= 5) {
             match = false
             experience++
         }
-        */
 
         const bs1 = /Role: [\s\S]*?Location: Remote \(Work from Anywhere\)[\s\S]*?Payout: [\s\S]*?Role Overview:[\s\S]*?Key Responsibilities:[\s\S]+?Required Skills & Qualifications:[\s\S]*?Equal Opportunity Employer:[\s\S]*?We hire based on skills and expertise\. All qualified candidates are welcome regardless of background, experience, or prior employment history\. Applications are reviewed solely on demonstrated technical ability and qualifications\.[\s\S]*?Apply Now!/.test(dbJob.jobDescription)
         const bs2 = bstences.filter(sentence => desc.includes(sentence)).length === bstences.length
