@@ -84,6 +84,7 @@ try {
                     const descEl = document.querySelector('[data-sdui-component="com.linkedin.sdui.generated.jobseeker.dsl.impl.aboutTheJob"]')
                        ?? document.querySelector('[data-testid="expandable-text-box"]')
                     const locationEl = document.querySelectorAll(`${listSelector} > ${cardSelector}`)[j]!.querySelectorAll('p')[2]
+                    const easyApply = !!document.querySelector(`${jobDescCont} [aria-label="Easy Apply to this job"]`)
 
                     return {
                         id: new URL('' + window.location).searchParams.get('currentJobId')!,
@@ -93,6 +94,7 @@ try {
                         location: locationEl.textContent,
                         descriptionHtml: descEl!.innerHTML,
                         description: descEl!.textContent.replaceAll(/\s+/g, ' ').trim(),
+                        easyApply,
                     }
                 }, { listSelector, cardSelector, j, jobDescCont })
                 const jobDetails: P.job = {
@@ -104,6 +106,7 @@ try {
                     jobLocation: jobDetailsRaw.location,
                     jobDescription: jobDetailsRaw.description,
                     jobDescriptionHtml: jobDetailsRaw.descriptionHtml,
+                    easyApply: jobDetailsRaw.easyApply,
                 }
 
                 total++

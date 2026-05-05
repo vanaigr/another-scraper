@@ -10,6 +10,7 @@ export type Job = {
     jobDescriptionHtml: string
     years: number
     clearance: boolean
+    easyApply: boolean
 }
 
 export function App({ jobs: jobs0 }: { jobs: Job[] }) {
@@ -40,6 +41,7 @@ export function App({ jobs: jobs0 }: { jobs: Job[] }) {
                     <div className='flex flex-wrap gap-2'>
                         {it.years !== -Infinity && <div>{it.years} years</div>}
                         {it.clearance && <div className='bg-yellow-400'>clearance</div>}
+                        {it.easyApply && <div className='bg-green-400'>easy apply</div>}
                     </div>
                 </div>
             })}
