@@ -26,6 +26,7 @@ const bannedCompanies = [
     'AgileGrid Solutions', // best job tool
     'Joinrs',
     'Company Confidential',
+    'Confidential',
 
     'Quik Hire Staffing',
     'Recruiting from Scratch',
